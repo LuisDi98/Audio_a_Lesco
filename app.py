@@ -50,6 +50,7 @@ def upload_file():
             file.save(file.filename)
             text_result = transcript(file.filename)
             return render_template('index.html', result=text_result)
+        else: print("No file")
     return render_template('index.html')
 
 @app.route('/api/record_wav', methods=['GET', 'POST'])
@@ -62,6 +63,7 @@ def record_wav():
     write(file_name, fs, myrecording)  # Save as WAV file
     text_result = transcript(file_name)
     return render_template('index.html', result=text_result)
+
 if __name__ == '__main__':
     tokenizer = Wav2Vec2Tokenizer.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-spanish")
     model = Wav2Vec2ForCTC.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-spanish")
