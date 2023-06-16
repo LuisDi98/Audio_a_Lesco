@@ -53,10 +53,16 @@
 </head>
 <body>
     <h1>Carga de archivo</h1>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" action="/api/upload_file" enctype="multipart/form-data">
         <label for="file">Selecciona un archivo:</label>
         <input type="file" id="file" name="file" accept=".txt,.pdf,.doc,.docx">
         <button type="submit">Cargar</button>
+        
     </form>
+    <h1>Graba tu propio audio aqui</h1>
+    <form method="POST" action="/api/record_wav" enctype="multipart/form-data">
+        <button type="submit">Grabar</button>
+    </form>
+    <h3>{{result}}</h3>
 </body>
 </html>
