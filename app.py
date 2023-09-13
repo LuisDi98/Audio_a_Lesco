@@ -1,15 +1,6 @@
-"""
-1- Integrar wav2vec y probar en la pagina
-
-2- 
-
-"""
-
-
 from flask import Flask, request, render_template
 import torch
-#from whisper import Whisper, ModelDimensions
-
+import whisper
 import ipywidgets as widgets
 from IPython import display as disp
 from IPython.display import display, Audio, clear_output
@@ -29,12 +20,11 @@ app = Flask(__name__)
 tokenizer = None
 model = None
 
+
+
+
 def transcript(file_name):
-    waveform, sample_rate = librosa.load(file_name, sr=44100)
-    input_values = tokenizer(waveform, return_tensors='pt').input_values
-    logits = model(input_values).logits
-    preditcted_ids = torch.argmax(logits, dim=-1)
-    text = tokenizer.batch_decode(preditcted_ids)[0]
+    text = model.transcribe(file_name)['text']
     print(text)
     return text
 
@@ -65,8 +55,5 @@ def record_wav():
     return render_template('index.html', result=text_result)
 
 if __name__ == '__main__':
-    tokenizer = Wav2Vec2Tokenizer.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-spanish")
-    model = Wav2Vec2ForCTC.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-spanish")
-    # model_path = 'tiny_model.pth'
-    # model = torch.hub.load('snakers4/silero-models', 'silero_whisper_tiny', model_path=model_path)
+    model = whisper.load_model("tiny")
     app.run(debug=True)
