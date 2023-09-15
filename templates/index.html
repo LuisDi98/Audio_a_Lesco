@@ -19,18 +19,44 @@
     <div class="container text-center mt-5">
         <div class="col-md-6 mx-auto">
             <h1>Graba tu propio audio aquí</h1>
-            <form method="POST" action="/api/record_wav" enctype="multipart/form-data">
-                <button type="submit" class="btn btn-success mt-3">Grabar</button>
-            </form>
+            <button id="recordButton" class="btn btn-success mt-3">Iniciar Grabación</button>
+            <p id="recordingStatus" style="display: none;">Grabando...</p>
         </div>
     </div>
 
     <div class="container text-center mt-5">
         <div class="col-md-6 mx-auto">
-            <h3>{{result}}</h3>
+            <div style="max-height: 200px; overflow-y: scroll;">
+                <h3 id="resultText" style="display: none;">{{result}}</h3>
+            </div>
+            <a href="#" id="downloadButton" class="btn btn-primary mt-3" style="display: none;">Descargar Texto</a>
         </div>
     </div>
-
+    
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var resultText = "{{result}}"; // Obtiene el texto del template Flask
+            var resultTextElement = document.getElementById("resultText");
+            var downloadButton = document.getElementById("downloadButton");
+    
+            if (resultText) {
+                resultTextElement.style.display = "block"; // Muestra el texto
+                downloadButton.style.display = "block"; // Muestra el botón de descarga
+            }
+    
+            downloadButton.addEventListener("click", function () {
+                var blob = new Blob([resultText], { type: "text/plain" });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = "texto_transcrito.txt";
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+    
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>
