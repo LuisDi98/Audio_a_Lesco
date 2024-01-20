@@ -1,0 +1,4 @@
+flask
+jiwer
+sounddevice
+git+https://github.com/openai/whisper.git
