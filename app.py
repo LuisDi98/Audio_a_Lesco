@@ -1,50 +1,72 @@
+import time
 from flask import Flask, request, render_template
-import torch
 import whisper
-import ipywidgets as widgets
-from IPython import display as disp
-from IPython.display import display, Audio, clear_output
-import base64
-from pydub import AudioSegment
-import io
-import tempfile
-import librosa
-from scipy.io import wavfile
-import numpy as np
-import soundfile as sf
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Tokenizer
 import sounddevice as sd
 from scipy.io.wavfile import write
 
+# Attributes for backend server, wav2vec tokenizer, and model to be used
+# Current version is using only whisper since it is the best model that we found
 app = Flask(__name__)
 tokenizer = None
 model = None
 
 
-
-
 def transcript(file_name):
+    """Transcribe the content of an audio file.
+
+    Args:
+        file_name (str): The name of the audio file to transcribe.
+
+    Returns:
+        str: The transcribed text.
+    """
     text = model.transcribe(file_name)['text']
     print(text)
     return text
 
+
 @app.route('/', methods=['GET', 'POST'])
 def init():
+    """Initialize the Flask application.
+
+    Returns:
+        render_template: The rendered HTML template.
+    """
     return render_template('index.html')
+
 
 @app.route('/api/upload_file', methods=['GET', 'POST'])
 def upload_file():
+    """Handle file upload and transcript.
+
+    Returns:
+        render_template: The rendered HTML template.
+    """
+    # Start the timer
+    start_time = time.perf_counter()
+
     if request.method == 'POST':
         file = request.files['file']
         if file:
             file.save(file.filename)
             text_result = transcript(file.filename)
+            # Stop the timer
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            print("\n\nEl programa tarda: \t" + str(elapsed_time))
             return render_template('index.html', result=text_result)
-        else: print("No file")
+        else:
+            print("No file")
     return render_template('index.html')
+
 
 @app.route('/api/record_wav', methods=['GET', 'POST'])
 def record_wav():
+    """Record audio, save as WAV file, and transcribe.
+
+    Returns:
+        render_template: The rendered HTML template.
+    """
     fs = 44100  # Sample rate
     seconds = 10  # Duration of recording
     myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
@@ -54,6 +76,7 @@ def record_wav():
     text_result = transcript(file_name)
     return render_template('index.html', result=text_result)
 
+
 if __name__ == '__main__':
-    model = whisper.load_model("tiny")
+    model = whisper.load_model("small")
     app.run(debug=True)
